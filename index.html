@@ -3,63 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>인터랙티브 생물 분류 시뮬레이터</title>
+    <title>생물 분류 시뮬레이터</title>
     <style>
         body {
             font-family: 'Malgun Gothic', sans-serif;
-            background-color: #f0f7f4;
-            color: #333;
+            background-color: #f7faf7;
+            color: #2c3e50;
             margin: 0;
             padding: 0;
-            line-height: 1.6;
+            line-height: 1.7;
         }
 
         header {
-            background-color: #1b5e20;
+            background: linear-gradient(135deg, #1e4d2b, #2a7a42);
             color: white;
             text-align: center;
-            padding: 2rem 1rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 3rem 1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            letter-spacing: -1px;
+        }
+
+        header p {
+            margin: 0.8rem 0 0 0;
+            font-size: 1.1rem;
+            opacity: 0.85;
         }
 
         main {
-            max-width: 700px;
+            max-width: 760px;
             margin: 3rem auto;
-            padding: 0 1rem;
+            padding: 0 1.5rem;
         }
 
-        /* 퀴즈 및 결과 카드 스타일 */
         .card {
             background: white;
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 2.5rem;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.06);
-            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+            border: 1px solid #e1e8e1;
         }
 
-        .question-text {
+        .question-box {
             font-size: 1.3rem;
             font-weight: bold;
+            color: #1e4d2b;
             margin-bottom: 2rem;
-            color: #2e7d32;
+            text-align: center;
+            word-break: keep-all;
         }
 
-        .btn-container {
+        .btn-list {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.2rem;
         }
 
         button {
-            padding: 1rem;
+            padding: 1.2rem;
             font-size: 1.1rem;
-            border: 2px solid #a5d6a7;
-            border-radius: 8px;
-            background-color: #f1f8e9;
+            border: 2px solid #c8e6c9;
+            border-radius: 10px;
+            background-color: #f9fbf9;
             color: #2e7d32;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.25s ease;
             font-weight: bold;
+            text-align: left;
         }
 
         button:hover {
@@ -67,70 +81,280 @@
             color: white;
             border-color: #2e7d32;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.15);
         }
 
-        /* 결과 화면 스타일 */
         .hidden {
             display: none;
         }
 
-        .result-title {
-            color: #1b5e20;
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
+        /* 계통수 빌더 스타일 */
+        .result-header {
+            text-align: center;
+            border-bottom: 2px dashed #c8e6c9;
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
 
-        /* 계통수(Tree) 시각화 스타일 */
-        .tree-container {
-            text-align: left;
-            background: #263238;
-            color: #eceff1;
-            padding: 1.5rem;
-            border-radius: 8px;
+        .result-header h2 {
+            color: #1e4d2b;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .tree-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2e7d32;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .tree-box {
+            background: #1e251f;
+            color: #e8f5e9;
+            padding: 2rem;
+            border-radius: 12px;
             font-family: 'Consolas', monospace;
-            margin: 2rem 0;
             overflow-x: auto;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
         }
 
-        .tree-node {
-            margin-left: 20px;
-            border-left: 2px dashed #4f5b62;
-            padding-left: 15px;
+        .tree-branch {
+            margin-left: 24px;
+            border-left: 2px dotted #4d6151;
+            padding-left: 18px;
             position: relative;
-            margin-top: 5px;
+            margin-top: 6px;
         }
 
-        .tree-node::before {
+        .tree-branch::before {
             content: "└── ";
-            color: #81c784;
+            color: #a5d6a7;
             position: absolute;
             left: 0;
         }
 
-        .tree-root {
-            font-weight: bold;
+        .level-tag {
             color: #ffb74d;
+            font-weight: bold;
+            margin-right: 6px;
         }
 
-        .tree-leaf {
+        .leaf-node {
             color: #4fc3f7;
             font-weight: bold;
+            background-color: rgba(79, 195, 247, 0.15);
+            padding: 2px 6px;
+            border-radius: 4px;
         }
 
-        .reset-btn {
-            background-color: #e0f2f1;
-            color: #00796b;
-            border: 2px solid #b2dfdb;
-            margin-top: 1rem;
+        .restart-btn {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 2px solid #c8e6c9;
+            margin-top: 2.5rem;
+            text-align: center;
+            width: 100%;
         }
-        .reset-btn:hover {
-            background-color: #00796b;
-            border-color: #00796b;
+        .restart-btn:hover {
+            background-color: #2e7d32;
+            border-color: #2e7d32;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>🧬 스마트 생물 분류기</h1>
-        <p>질문에 답하며 역·계·문·강·목·과·속·종 단계를 찾아
+        <h1>🌿 3역 6계 기반 생물 분류 아카이브</h1>
+        <p>교재의 핵심 분류 형질을 바탕으로 구현된 알고리즘 테스트</p>
+    </header>
+
+    <main>
+        <div id="quiz-card" class="card">
+            <div id="question" class="question-box">분류 형질 데이터를 로딩 중입니다...</div>
+            <div id="buttons" class="btn-list"></div>
+        </div>
+
+        <div id="result-card" class="card hidden">
+            <div class="result-header">
+                <h2>🎯 분류 동정 완료</h2>
+                <p>선택하신 계통학적 특징을 만족하는 최종 생물학적 종은 다음과 같습니다.</p>
+                <h1 id="organism-title" style="color: #d32f2f; margin: 1rem 0;"></h1>
+            </div>
+            
+            <div class="tree-title">🌳 역·계·문·강·목·과·속·종 풀 계통수 (Phylogenetic Tree)</div>
+            <div id="tree-container" class="tree-box"></div>
+
+            <button class="restart-btn" onclick="restart()">다른 생물 분류해보기</button>
+        </div>
+    </main>
+
+    <script>
+        // 교재 내용을 기반으로 정밀 맵핑한 질문 트리 구조
+        const systemData = {
+            start: {
+                text: "Q1. 세포에 핵막이 존재하며 히스톤 단백질과 결합한 선형 DNA를 가지고 있습니까?",
+                options: [
+                    { text: "아니오. 핵막이 없고 펩티도글리칸 성분의 세포벽이 있는 원핵생물입니다.", next: "bacteria_res" },
+                    { text: "예. 뚜렷한 핵막이 있는 진핵생물역에 속합니다.", next: "kingdom_step" }
+                ]
+            },
+            kingdom_step: {
+                text: "Q2. 에너지를 유기물로 섭취하는 방식과 세포벽 유무의 특징이 어떠합니까?",
+                options: [
+                    { text: "셀룰로스 성분의 세포벽이 있으며, 엽록체가 있어 광합성을 하는 독립영양생물입니다. (식물계)", next: "plant_step" },
+                    { text: "세포벽과 엽록체가 없으며, 신경과 근육이 발달하여 능동적으로 이동하는 종속영양생물입니다. (동물계)", next: "animal_step" }
+                ]
+            },
+            plant_step: {
+                text: "Q3. [식물계 분류] 물과 양분을 이동시키는 관다발의 유무와 밑씨가 싸여있는 씨방 구조가 존재합니까?",
+                options: [
+                    { text: "관다발이 전혀 발달하지 않았고, 헛뿌리를 가지며 포자로 번식합니다. (비관다발식물)", next: "moss_res" },
+                    { text: "관다발이 잘 발달되어 있고, 밑씨가 씨방 속에 들어있어 외부로부터 보호받습니다. (속씨식물)", next: "rice_res" }
+                ]
+            },
+            animal_step: {
+                text: "Q4. [동물계 분류] 몸의 대칭성, 배엽 형성, 원구의 발달 방식 및 탈피 여부가 어떠합니까?",
+                options: [
+                    { text: "3배엽성 좌우대칭 동물이며, 발생 시 원구가 입이 되는 선구동물 중 주기적으로 탈피를 합니다. (탈피동물)", next: "butterfly_res" },
+                    { text: "3배엽성 좌우대칭 동물이며, 발생 시 원구가 항문이 되는 후구동물 중 몸 중심에 척삭 구조가 나타납니다. (척삭동물)", next: "tiger_res" }
+                ]
+            }
+        };
+
+        // 이미지 속 누락되었던 [강-목-과-속-종]을 학술 명칭 기반으로 완벽 동정 배열화
+        const finalTaxonomy = {
+            bacteria_res: {
+                title: "대장균 (Escherichia coli)",
+                steps: [
+                    { lvl: "역", name: "세균역 (Bacteria)" },
+                    { lvl: "계", name: "진정세균계 (Eubacteria)" },
+                    { lvl: "문", name: "변형균문 (Proteobacteria)" },
+                    { lvl: "강", name: "감마변형균강 (Gammaproteobacteria)" },
+                    { lvl: "목", name: "장내세균목 (Enterobacterales)" },
+                    { lvl: "과", name: "장내세균과 (Enterobacteriaceae)" },
+                    { lvl: "속", name: "에셰리키아속 (Escherichia)" },
+                    { lvl: "종", name: "대장균 (E. coli)" }
+                ]
+            },
+            moss_res: {
+                title: "우산이끼 (Marchantia polymorpha)",
+                steps: [
+                    { lvl: "역", name: "진핵생물역 (Eukarya)" },
+                    { lvl: "계", name: "식물계 (Plantae)" },
+                    { lvl: "문", name: "태류식물문 (Marchantiophyta)" },
+                    { lvl: "강", name: "우산이끼강 (Marchantiopsida)" },
+                    { lvl: "목", name: "우산이끼목 (Marchantiales)" },
+                    { lvl: "과", name: "우산이끼과 (Marchantiaceae)" },
+                    { lvl: "속", name: "우산이끼속 (Marchantia)" },
+                    { lvl: "종", name: "우산이끼 (M. polymorpha)" }
+                ]
+            },
+            rice_res: {
+                title: "벼 (Oryza sativa)",
+                steps: [
+                    { lvl: "역", name: "진핵생물역 (Eukarya)" },
+                    { lvl: "계", name: "식물계 (Plantae)" },
+                    { lvl: "문", name: "속씨식물문 (Angiosperms)" },
+                    { lvl: "강", name: "외떡잎식물강 (Monocotyledons)" },
+                    { lvl: "목", name: "벼목 (Poales)" },
+                    { lvl: "과", name: "벼과 (Poaceae)" },
+                    { lvl: "속", name: "벼속 (Oryza)" },
+                    { lvl: "종", name: "벼 (O. sativa)" }
+                ]
+            },
+            butterfly_res: {
+                title: "호랑나비 (Papilio xuthus)",
+                steps: [
+                    { lvl: "역", name: "진핵생물역 (Eukarya)" },
+                    { lvl: "계", name: "동물계 (Animalia)" },
+                    { lvl: "문", name: "절지동물문 (Arthropoda)" },
+                    { lvl: "강", name: "곤충강 (Insecta)" },
+                    { lvl: "목", name: "나비목 (Lepidoptera)" },
+                    { lvl: "과", name: "호랑나비과 (Papilionidae)" },
+                    { lvl: "속", name: "호랑나비속 (Papilio)" },
+                    { lvl: "종", name: "호랑나비 (P. xuthus)" }
+                ]
+            },
+            tiger_res: {
+                title: "호랑이 (Panthera tigris)",
+                steps: [
+                    { lvl: "역", name: "진핵생물역 (Eukarya)" },
+                    { lvl: "계", name: "동물계 (Animalia)" },
+                    { lvl: "문", name: "척삭동물문 (Chordata)" },
+                    { lvl: "강", name: "포유강 (Mammalia)" },
+                    { lvl: "목", name: "식육목 (Carnivora)" },
+                    { lvl: "과", name: "고양이과 (Felidae)" },
+                    { lvl: "속", name: "표범속 (Panthera)" },
+                    { lvl: "종", name: "호랑이 (P. tigris)" }
+                ]
+            }
+        };
+
+        let currentId = "start";
+
+        function renderDOM() {
+            const node = systemData[currentId];
+            
+            // 만약 분기 데이터가 없고 결과 데이터셋에 등록되어 있다면 결과 도출
+            if (!node && finalTaxonomy[currentId]) {
+                printResult(finalTaxonomy[currentId]);
+                return;
+            }
+
+            document.getElementById("question").innerText = node.text;
+            const container = document.getElementById("buttons");
+            container.innerHTML = "";
+
+            node.options.forEach(opt => {
+                const btn = document.createElement("button");
+                btn.innerText = opt.text;
+                btn.onclick = () => {
+                    currentId = opt.next;
+                    renderDOM();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function printResult(data) {
+            document.getElementById("quiz-card").classList.add("hidden");
+            document.getElementById("result-card").classList.remove("hidden");
+            document.getElementById("organism-title").innerText = data.title;
+
+            const treeArea = document.getElementById("tree-container");
+            treeArea.innerHTML = "";
+
+            // Root 기초 노드 생성
+            let htmlTree = `<div style="font-weight:bold; color: #ff8a65;">생물 대진화 기원 (Common Ancestor)</div>`;
+            
+            // 8단계 레이어 체인 조립 루프
+            data.steps.forEach((step, idx) => {
+                const isFinal = idx === data.steps.length - 1;
+                const innerContent = isFinal 
+                    ? `<span class="level-tag">[${step.lvl}]</span><span class="leaf-node">${step.name}</span>` 
+                    : `<span class="level-tag">[${step.lvl}]</span>${step.name}`;
+                
+                htmlTree += `<div class="tree-branch">${innerContent}`;
+            });
+
+            // 생성해둔 8층짜리 블록 태그 닫기 처리
+            data.steps.forEach(() => {
+                htmlTree += `</div>`;
+            });
+
+            treeArea.innerHTML = htmlTree;
+        }
+
+        function restart() {
+            currentId = "start";
+            document.getElementById("result-card").classList.add("hidden");
+            document.getElementById("quiz-card").classList.remove("hidden");
+            renderDOM();
+        }
+
+        // 스크립트 실행 시작점
+        renderDOM();
+    </script>
+</body>
+</html>
