@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>생물 분류 탐구 생활</title>
+    <style>
+        /* 웹사이트 전체 기본 스타일 구성 */
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f9f4;
+            color: #333;
+        }
+        
+        /* 상단 헤더 스타일 */
+        header {
+            background-color: #2e7d32;
+            color: white;
+            text-align: center;
+            padding: 2.5rem 1rem;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        header p {
+            margin: 0.5rem 0 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* 메인 콘텐츠 영역 레이아웃 */
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* 소개 섹션 카드 */
+        .intro-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2.5rem;
+        }
+        .intro-box h2 {
+            margin-top: 0;
+            color: #2e7d32;
+            border-bottom: 2px solid #2e7d32;
+            padding-bottom: 0.3rem;
+        }
+
+        /* 분류 단계 카드 스타일 */
+        .taxonomy-list {
+            display: grid;
+            gap: 1rem;
+        }
+        .taxon-card {
+            background: white;
+            padding: 1.2rem 1.5rem;
+            border-left: 6px solid #2e7d32;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        /* 마우스를 올렸을 때 살짝 떠오르는 효과 */
+        .taxon-card:hover {
+            transform: translateY(-3px);
+        }
+        .taxon-card h3 {
+            margin: 0 0 0.5rem 0;
+            color: #1b5e20;
+            font-size: 1.3rem;
+        }
+        .taxon-card p {
+            margin: 0;
+            color: #555;
+        }
+
+        /* 하단 푸터 스타일 */
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            background-color: #222;
+            color: #ccc;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🌱 생물 분류 탐구 가이드</h1>
+        <p>지구상의 다양한 생물을 체계적으로 나누는 기준</p>
+    </header>
+
+    <main>
+        <section class="intro-box">
+            <h2>생물 분류(Biological Classification)란?</h2>
+            <p>지구에 존재하는 수많은 생물들의 멀고 가까운 관계(친연관계)를 밝히고, 일정한 규칙에 따라 무리를 나누는 것을 말합니다. 현대 생물학에서는 가장 큰 범주인 <strong>'역'</strong>부터 가장 작은 범주인 <strong>'종'</strong>까지 총 8개의 단계를 기본으로 삼습니다.</p>
+        </section>
+
+        <section>
+            <h2 style="color: #2e7d32; margin-bottom: 1.5rem;">생물 분류의 8가지 단계</h2>
+            <div class="taxonomy-list">
+                
+                <div class="taxon-card">
+                    <h3>1. 역 (Domain)</h3>
+                    <p>생물 분류의 최상위 단계입니다. 크게 세균역, 고세균역, 진핵생물역의 3가지로 나뉩니다.</p>
+                </div>
+
+                <div class="taxon-card">
+                    <h3>2. 계 (Kingdom)</h3>
+                    <p>식물계, 동물계, 균계(버섯, 곰팡이) 등 생물의 큰 형태와 기능적 특징에 따라 나눕니다.</p>
+                </div>
+
+                <div class="taxon-card">
+                    <h3>3. 문 (Phylum)</h3>
+                    <p>동물의 '척삭동물문', 식물의 '속씨식물문'처럼 생물의 기본 몸 구조를 기준으로 삼습니다.</p>
+                </div>
+
+                <div class="taxon-card">
+                    <h3>4. 강 (Class)</h3>
+                    <p>포유강, 조강(새), 파충강 등 한 단계 더 구체적인 특징으로 분류합니다.</p>
+                </div>
+
+                <div class="taxon-card">
+                    <h3>5. 목 (Order)</h3>
+                    <p>식육목(호랑이, 사자 등 고기를 먹는 동물), 영장목(사람, 원숭이 등)처럼 생활 방식이 유사한 그룹입니다.</p>
+                </div>
+
+                <div class="taxon-card">
+                    <h3>6. 과 (Family)</h3>
+                    <p>고양이과, 개과, 곰과처럼 겉모습과 생태적 특징이 서로 매우 닮은 생물들을 묶습니다.</p>
+                </div>
+
+                <div class="taxon-card">
+                    <h3>7. 속 (Genus)</h3>
+                    <p>해부학적 구조나 형태가 아주 가까운 종들을 모아놓은 무리입니다. (예: 표범속)</p>
+                </div>
+
+                <div class="taxon-card">
+                    <h3>8. 종 (Species)</h3>
+                    <p>생물 분류의 가장 기본 단위입니다. 서로 교배하여 번식이 가능한 자손을 낳을 수 있는 집단을 뜻합니다.</p>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 생물 분류 가이드 사이트. 모든 콘텐츠는 교육용으로 사용 가능합니다.</p>
+    </footer>
+
+</body>
+</html>
