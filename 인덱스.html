@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OncoExpress: 종양용해바이러스 운반 시뮬레이터</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap');
+        body { font-family: 'Pretendard', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+    <header class="bg-slate-800 border-b border-slate-700 p-5 shadow-lg">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-emerald-400 flex items-center gap-2">
+                🚚 OncoExpress <span class="text-sm font-normal text-slate-400">| 종양용해바이러스 배송 시뮬레이터</span>
+            </h1>
+            <div class="text-xs bg-slate-700 px-3 py-1.5 rounded-full text-slate-300">
+                세브란스 연구팀 변형 모델 탑재 v1.0
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl flex flex-col gap-5">
+            <h2 class="text-xl font-bold text-slate-200 border-b border-slate-700 pb-2">📦 배송 조건 설정 (Inputs)</h2>
+            
+            <div>
+                <label class="block text-sm font-semibold text-slate-400 mb-2">1. 바이러스 화물 (Virus)</label>
+                <select id="virus" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-emerald-500">
+                    <option value="vsv">VSV (수포성 구내염) - 복제 6h / 초고속 / 면역취약</option>
+                    <option value="vv">VV (백시니아) - 잠복 최대 48h / 안정적 / 대형</option>
+                    <option value="oad">oAd (아де노바이러스) - 방출 2~3일 / 타겟팅 양호</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-400 mb-2">2. 배송 수단 (Carrier Vehicle)</label>
+                <select id="carrier" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-emerald-500">
+                    <option value="naked">Naked Virus (운반체 없음 - 도보 배송)</option>
+                    <option value="msc">MSC (간충구줄기세포 - 대형 트럭 / 폐 트래핑 위험)</option>
+                    <option value="nsc">NSC (신경줄기세포 - BBB 통과 가능 특수 차량)</option>
+                    <option value="tcell">T-세포 (면역세포 - 스포츠카 / 림프암 특화)</option>
+                    <option value="liposome">리포좀 (나노입자 - 일반 박스 / EPR 효과)</option>
+                    <option value="peg">PEG화 나노입자 (스텔스 아머 차량)</option>
+                    <option value="mnp">자기 나노입자 (MNP - 자석 견인 차량)</option>
+                    <option value="rbc">세포막 유래 나노소포체 (RBC 위장막 차량)</option>
+                    <option value="severance">★ 세브란스 변형 운반체 (하이테크 극비 차량)</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-400 mb-2">3. 배송 경로 (Delivery Route)</label>
+                <select id="route" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-emerald-500">
+                    <option value="iv">정맥 주사 (IV - 고속도로 / 검문소 많음)</option>
+                    <option value="it">종양 내 주사 (IT - 목적지 직배송)</option>
+                    <option value="ip">복강 주사 (IP - 우회로)</option>
+                    <option value="ia">동맥 주사 (IA - 표적 근접 고속로)</option>
+                </select>
+            </div>
+
+            <button onclick="runSimulation()" class="w-full mt-4 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 px-4 rounded-xl transition duration-200 shadow-lg shadow-emerald-500/20 cursor-pointer">
+                🚀 배송 시뮬레이션 시작
+            </button>
+        </div>
+
+        <div class="lg:col-span-2 flex flex-col gap-6">
+            
+            <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-xl">
+                <h3 class="text-md font-bold text-slate-300 mb-3 flex items-center gap-2">
+                    <span class="animate-ping inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
+                    실시간 배송 추적 단말기 (FedEx Tracker)
+                </h3>
+                <div id="statusLog" class="bg-slate-950 p-4 rounded-xl h-36 overflow-y-auto font-mono text-sm text-emerald-400 space-y-1 border border-slate-800">
+                    <div class="text-slate-400">// 대기 중... 배송 조건을 설정하고 시작 버튼을 누르세요.</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1">
+                <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-xl flex flex-col justify-between">
+                    <h3 class="text-md font-bold text-slate-300 mb-2">📊 최종 종양 도달률 (%)</h3>
+                    <div class="relative w-full h-48 flex items-center justify-center">
+                        <canvas id="deliveryChart"></canvas>
+                    </div>
+                    <div class="mt-2 text-center text-xs text-slate-400">
+                        * Naked 모델(기준점 0.001%) 대비 격차 시각화
+                    </div>
+                </div>
+
+                <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-xl flex flex-col justify-between">
+                    <h3 class="text-md font-bold text-slate-300 mb-2">🗺️ 체내 장기별 배송 분포도 (Biodistribution)</h3>
+                    <div class="relative w-full h-48 flex items-center justify-center">
+                        <canvas id="distChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4">
+                <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60 text-center">
+                    <div class="text-xs text-slate-400 font-medium">배송 완료 시간</div>
+                    <div id="infoTime" class="text-xl font-bold text-cyan-400 mt-1">-</div>
+                </div>
+                <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60 text-center">
+                    <div class="text-xs text-slate-400 font-medium">면역 돌파력</div>
+                    <div id="infoImmune" class="text-xl font-bold text-amber-400 mt-1">-</div>
+                </div>
+                <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60 text-center">
+                    <div class="text-xs text-slate-400 font-medium">최종 패키지 생존율</div>
+                    <div id="infoSurvival" class="text-xl font-bold text-emerald-400 mt-1">-</div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="bg-slate-950 p-4 text-center text-xs text-slate-500 border-t border-slate-800">
+        Oncolytic Virus Delivery Simulator | Bio-Gamification Web Project
+    </footer>
+
+    <script>
+        let deliveryChart = null;
+        let distChart = null;
+
+        // Initialize Charts on Load
+        window.onload = function() {
+            initCharts();
+        };
+
+        function initCharts() {
+            const ctx1 = document.getElementById('deliveryChart').getContext('2d');
+            deliveryChart = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['일반 Naked 기준점', '현재 조합 결과'],
+                    datasets: [{
+                        label: '도달률 (%)',
+                        data: [0.005, 0],
+                        backgroundColor: ['#64748b', '#10b981'],
+                        borderWidth: 0,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, type: 'logarithmic', grid: { color: '#334155' } }, x: { grid: { display: false } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            const ctx2 = document.getElementById('distChart').getContext('2d');
+            distChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['종양(목적지)', '간(Liver)', '폐(Lung)', '비장(Spleen)'],
+                    datasets: [{
+                        data: [25, 25, 25, 25],
+                        backgroundColor: ['#10b981', '#ef4444', '#3b82f6', '#f59e0b'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 } } } }
+                }
+            });
+        }
+
+        async function runSimulation() {
+            const virus = document.getElementById('virus').value;
+            const carrier = document.getElementById('carrier').value;
+            const route = document.getElementById('route').value;
+            const logBox = document.getElementById('statusLog');
+            
+            logBox.innerHTML = ""; // Clear log
+            
+            // 1. 계산 기본 상수 설정
+            let deliveryRate = 0.005; // Base Naked
+            let survivalRate = 100;
+            let timeTaken = "6시간 이내";
+            
+            let distTumor = 0.01;
+            let distLiver = 60;
+            let distLung = 20;
+            let distSpleen = 19.99;
+
+            // 로그 트리거 헬퍼
+            const addLog = (text, delay) => {
+                return new Promise(resolve => setTimeout(() => {
+                    logBox.innerHTML += `<div>${text}</div>`;
+                    logBox.scrollTop = logBox.scrollHeight;
+                    resolve();
+                }, delay));
+            };
+
+            // 게이미피케이션 인트로 로그
+            await addLog(`🚚 [배송 접수] 화물: ${virus.toUpperCase()}, 차량: ${carrier.toUpperCase()}, 경로: ${route.toUpperCase()}`, 100);
+            await addLog(`⏱️ [출발] 택배 기사가 종양을 향해 출발합니다.`, 300);
+
+            // 2. 장애물 돌파 시뮬레이션 알고리즘 가동
+            // Stage 1: 혈류 내 면역 공격
+            await addLog(`⚔️ [1단계: 혈류 검문소] 혈액 내 중화항체 및 보체 공격 개시!`, 400);
+            if(carrier === 'naked') {
+                survivalRate -= 95;
+                if(virus === 'vsv') {
+                    await addLog(`❌ [위기] Naked VSV는 취약합니다! 투여 2분 만에 대부분 소실되었습니다.`, 300);
+                    survivalRate -= 4.9;
+                } else {
+                    await addLog(`⚠️ Naked 상태로 면역 공격에 직접 노출되어 대량의 패키지가 사멸했습니다.`, 300);
+                }
+                deliveryRate = 0.005;
+            } else if(['msc', 'nsc', 'tcell'].includes(carrier)) {
+                await addLog(`🛡️ [보호] 세포 운반체 쉴딩 효과 발동! 면역 공격을 우회합니다.`, 300);
+                survivalRate -= 10;
+            } else if(carrier === 'peg' || carrier === 'rbc') {
+                await addLog(`✨ [스텔스] PEG/위장막 효과로 면역 군대를 완벽히 기만했습니다.`, 300);
+                survivalRate -= 5;
+            } else if(carrier === 'severance') {
+                await addLog(`⚡ [초기술] 세브란스 변형 운반체가 차원이 다른 은폐력으로 면역을 돌파합니다.`, 300);
+                survivalRate -= 1;
+            } else {
+                await addLog(`📦 일반 나노입자가 완충 효과를 제공합니다.`, 300);
+                survivalRate -= 30;
+            }
+
+            // Stage 2: 여과 및 트래핑 (Lung & Liver Barrier)
+            await addLog(`🫁 [2단계: 장기 필터 장벽] 모세혈관 및 RES 필터 진입.`, 400);
+            if(route === 'it') {
+                await addLog(`🎯 [특수] 종양 내 직배송(IT) 경로 선택으로 주요 장기 필터를 전부 스킵합니다!`, 300);
+                distTumor = 85; distLiver = 5; distLung = 5; distSpleen = 5;
+                deliveryRate = 85;
+            } else {
+                if(carrier === 'msc') {
+                    await addLog(`🚨 [트래핑] MSC는 크기(15~30µm)가 커서 폐 모세혈관(Lung Barrier)에 대거 갇혔습니다!`, 300);
+                    distLung = 70; distLiver = 15; distSpleen = 10; distTumor = 5;
+                    deliveryRate = 1.5;
+                } else if(carrier === 'nsc') {
+                    await addLog(`🚙 NSC는 MSC 대비 폐 통과 능력이 2배 뛰어납니다. 안전하게 통과 중.`, 300);
+                    distLung = 35; distLiver = 35; distTumor = 15;
+                    deliveryRate = 4.5;
+                } else if(carrier === 'severance') {
+                    await addLog(`🚀 세브란스 특수 기전 모델 작동: 폐 트래핑을 원천 차단하고 종양 표적성을 강화합니다.`, 300);
+                    distTumor = 20; distLung = 30; distLiver = 30; distSpleen = 20;
+                    deliveryRate = 15.0; 
+                } else if(carrier === 'peg') {
+                    await addLog(`💧 PEG 스텔스 기능으로 간(Liver) 흡착을 줄이고 혈류에 오래 체류합니다.`, 300);
+                    distLiver = 30; distTumor = 8;
+                    deliveryRate = 5.0;
+                } else if(carrier === 'naked') {
+                    distLiver = 80; distLung = 10; distSpleen = 9.99; distTumor = 0.01;
+                } else {
+                    distLiver = 50; distLung = 25; distTumor = 6;
+                    deliveryRate = 2.0;
+                }
+            }
+
+            // Stage 3: Homing & Penetration
+            await addLog(`🧬 [3단계: 종양 유도 및 침투] 케모카인 신호 유도 및 간질액 압력 극복 단계.`, 400);
+            if(carrier === 'severance') {
+                await addLog(`🔥 기존 대비 최대 10,000배 향상된 종양 타겟팅 침투 효율 달성!`, 300);
+            } else if(['msc','tcell'].includes(carrier) && route !== 'it') {
+                await addLog(`📍 세포의 고유 고향찾기(Homing) 특성 및 CXCR4 신호 추적으로 효율 증가.`, 300);
+            } else if(carrier === 'mnp') {
+                await addLog(`🧲 외부 자기장 유도로 물리적 침투력을 강제 향상시켰습니다.`, 300);
+                deliveryRate += 2.5;
+            }
+
+            // 바이러스 복제 타이밍에 따른 최종 시간 결정
+            if(virus === 'vsv') timeTaken = "6시간 이내 (초고속 방출)";
+            else if(virus === 'vv') timeTaken = "48시간 (잠복 배송)";
+            else timeTaken = "2~3일 (세포 용해 방출)";
+
+            await addLog(`🏁 [배송 완료] 시뮬레이션 데이터가 대시보드에 업데이트되었습니다.`, 200);
+
+            // 3. UI 및 차트 업데이트
+            document.getElementById('infoTime').innerText = timeTaken;
+            document.getElementById('infoImmune').innerText = carrier === 'naked' ? '최하 (위험)' : (carrier === 'severance' || carrier === 'peg' ? '최상 (안전)' : '보통');
+            document.getElementById('infoSurvival').innerText = `${survivalRate.toFixed(2)}%`;
+
+            // 차트 갱신
+            deliveryChart.data.datasets[0].data[1] = deliveryRate;
+            deliveryChart.update();
+
+            distChart.data.datasets[0].data = [distTumor, distLiver, distLung, distSpleen];
+            distChart.update();
+        }
+    </script>
+</body>
+</html>
